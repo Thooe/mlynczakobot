@@ -15,6 +15,7 @@ async def on_ready():
 	print('Bot name: '+str(bot.user.name))
 	print('Bot id: '+str(bot.user.id))
 	print('Api version: '+str(discord.__version__))
+	print('Created at: '+str(bot.user.created_at))
 	print('---------------------------------')
 
 @bot.event
