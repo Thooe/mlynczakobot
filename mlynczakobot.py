@@ -16,6 +16,7 @@ async def on_ready():
 	print('Bot id: '+str(bot.user.id))
 	print('Api version: '+str(discord.__version__))
 	print('Created at: '+str(bot.user.created_at))
+	await bot.change_status(discord.Game(name='Your girlfriend vagina'))
 	print('---------------------------------')
 
 @bot.event
@@ -23,10 +24,13 @@ async def on_message(message):
 	if message.content in list_of_fastfoods:
 		await bot.add_reaction(message,'🤖')
 	await bot.process_commands(message)
-
-@bot.command(pass_context=True)
-async def ping(ctx):
-	await bot.say('Pong!')
+	
+@bot.event
+async def on_message(message):
+	if message.content == 'fuck you':
+		await bot.add_reaction(message,'🔫')
+		await bot.send_message(message.channel, 'fuck you too')
+	await bot.process_commands(message)
 
 #@bot.command(description='When you joined channel')
 #async def howlong():
