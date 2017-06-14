@@ -1,4 +1,9 @@
 <?xml version="1.0"?>
 <ServerData>
-	<User></User>
+	<User>
+			<Id></Id>
+			<Cash></Cash>
+			<Level></Level>
+			<Exp></Exp>
+	</User>
 </ServerData>

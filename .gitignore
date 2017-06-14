@@ -91,3 +91,4 @@ ENV/
 .ropeproject
 tokens.json
 cmd.exe.lnk
+tokens.xml
