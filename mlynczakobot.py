@@ -65,7 +65,6 @@ async def info(ctx):
 async def rrol(ctx):
 	await bot.add_reaction(ctx.message,'😱')
 	r = random.randint(1,6)
-	print(r)
 	if r == 1:
 		await bot.say(ctx.message.author.name+'🔫')
 		await bot.ban(ctx.message.author, delete_message_days=0)
