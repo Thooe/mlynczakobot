@@ -1,9 +1,11 @@
-import discord
 from discord.ext import commands
+from datetime import datetime
+
+import discord
 import random
 import ctypes, sys
 import os
-from datetime import datetime
+
 import xml.etree.ElementTree as ET
 tree = ET.parse('tokens.xml')
 root = tree.getroot()
@@ -59,20 +61,25 @@ async def on_command_error(error, ctx):
 		if ctx.command.qualified_name == 'userinfo':
 			await bot.send_message(ctx.message.channel, '⚠ Użytkownik nie znajduje się na tym serwerze! ⚠')
 
+"""
+channel info
+"""
 
 """print user info"""
 @bot.command(pass_context=True)
-async def userinfo(ctx, m : discord.User = None):
-	if m == None:
-		m = ctx.message.author
+async def userinfo(ctx, *, m : discord.Member=None):
+	if not m:
+			m = ctx.message.author
 
 	avatar = m.avatar_url
 	if m.avatar_url == '':
 		avatar = m.default_avatar_url
 
-	game = ''
-	if m.game == None:
+	game = m.game
+	if not m.game:
 		game = 'Nie gra'
+
+	member_number = sorted(ctx.message.server.members, key=lambda u: u.joined_at).index(m) + 1
 
 	roles=''
 	roles_count = 0
@@ -88,6 +95,7 @@ async def userinfo(ctx, m : discord.User = None):
 	.add_field(name='Status:',value=str(m.status).capitalize(), inline=True)
 	.add_field(name='Gra:',value=game, inline=True)
 	.add_field(name='ID:',value=m.id, inline=True)
+	.add_field(name='Dołączył na pozycji:',value=member_number, inline=True)
 	.add_field(name='Dołączył:',value=datetime.strptime(str(m.joined_at.replace(microsecond=0)), '%Y-%m-%d %H:%M:%S'), inline=True)
 	.add_field(name='Utworzony :',value=datetime.strptime(str(m.created_at.replace(microsecond=0)), '%Y-%m-%d %H:%M:%S'), inline=True)
 	.add_field(name='({}) Roles:'.format(roles_count),value=roles, inline=True)
@@ -135,11 +143,6 @@ async def serverinfo(ctx):
 	.add_field(name='Emoji:',value=emojis, inline=True)
 	.set_thumbnail(url=s.icon_url))
 	await bot.send_message(ctx.message.channel, embed=si)
-
-"""calculator"""
-@bot.command(pass_context=True)
-async def kalk(ctx):
-	await bot.say('')
 
 """stock"""
 @bot.command(pass_context=True)
