@@ -6,6 +6,7 @@ import random
 import ctypes, sys
 import os
 
+import urbandictionary as udic
 import xml.etree.ElementTree as ET
 tree = ET.parse('tokens.xml')
 root = tree.getroot()
@@ -58,9 +59,9 @@ async def on_member_join(member):
 async def on_command_error(error, ctx):
 	print(error,ctx)
 	if isinstance(error, commands.BadArgument):
-		if ctx.command.qualified_name == 'userinfo':
+		if ctx.command.qualified_name == 'user':
 			await bot.send_message(ctx.message.channel, '⚠ Użytkownik nie znajduje się na tym serwerze! ⚠')
-
+	return bot
 """
 channel info
 """
@@ -147,7 +148,23 @@ async def server(ctx):
 """stock"""
 @bot.command(pass_context=True)
 async def stock(currency : str = None):
-	await bot.say('')
+	await bot.say(ctx.message.channel,'')
+
+"""urban dictionary"""
+@bot.command(pass_context=True)
+async def ud(ctx, *, words : str=None):
+	if not words:
+		await bot.send_message(ctx.message.channel, ctx.message.author.mention + ' ⚠ Nie podałeś słowa ⚠')
+	defs = udic.define(words)
+	si = discord.Embed(colour=0x2F4F4F)
+	(si
+	.set_footer(text=ctx.message.author, icon_url=ctx.message.author.avatar_url)
+	.set_thumbnail(url=bot.user.avatar_url))
+	if len(defs) > 0:
+		si.add_field(name=words, value=defs[0].definition, inline=True)
+		await bot.send_message(ctx.message.channel, embed=si)
+	else:
+		await bot.send_message(ctx.message.channel, ctx.message.author.mention + ' ⚠ Nie znaleziono słowa ⚠')
 
 """russian roulette"""
 @bot.command(pass_context=True)
