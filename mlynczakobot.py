@@ -150,18 +150,34 @@ async def server(ctx):
 async def stock(currency : str = None):
 	await bot.say(ctx.message.channel,'')
 
+"""random urban dictionary"""
+@bot.command(pass_context=True)
+async def rud(ctx):
+	await udi(ctx, random=True)
+
 """urban dictionary"""
 @bot.command(pass_context=True)
 async def ud(ctx, *, words : str=None):
-	if not words:
-		await bot.send_message(ctx.message.channel, ctx.message.author.mention + ' ⚠ Nie podałeś słowa ⚠')
-	defs = udic.define(words)
+	await udi(ctx, words)
+
+"""urban dictionary"""
+async def udi(ctx, words=None, random=False):
+	defs = []
+	if random == False:
+		if not words:
+			await bot.send_message(ctx.message.channel, ctx.message.author.mention + ' ⚠ Nie podałeś słowa ⚠')
+		else:
+			defs = udic.define(words)
+	else:
+		defs = udic.random()
+
 	si = discord.Embed(colour=0x2F4F4F)
 	(si
 	.set_footer(text=ctx.message.author, icon_url=ctx.message.author.avatar_url)
 	.set_thumbnail(url=bot.user.avatar_url))
+
 	if len(defs) > 0:
-		si.add_field(name=words, value=defs[0].definition, inline=True)
+		si.add_field(name=defs[0].word, value=defs[0].definition, inline=True)
 		await bot.send_message(ctx.message.channel, embed=si)
 	else:
 		await bot.send_message(ctx.message.channel, ctx.message.author.mention + ' ⚠ Nie znaleziono słowa ⚠')
