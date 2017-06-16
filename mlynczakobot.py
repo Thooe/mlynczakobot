@@ -55,8 +55,8 @@ async def on_member_join(member):
 @bot.event
 async def on_command_error(error, ctx):
 	print(error,ctx)
-	if ctx.command.qualified_name == 'userinfo':
-		if isinstance(error, commands.BadArgument):
+	if isinstance(error, commands.BadArgument):
+		if ctx.command.qualified_name == 'userinfo':
 			await bot.send_message(ctx.message.channel, '⚠ Użytkownik nie znajduje się na tym serwerze! ⚠')
 
 
