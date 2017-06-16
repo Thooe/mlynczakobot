@@ -67,7 +67,7 @@ channel info
 
 """print user info"""
 @bot.command(pass_context=True)
-async def userinfo(ctx, *, m : discord.Member=None):
+async def user(ctx, *, m : discord.Member=None):
 	if not m:
 			m = ctx.message.author
 
@@ -104,7 +104,7 @@ async def userinfo(ctx, *, m : discord.Member=None):
 
 """print server info"""
 @bot.command(pass_context=True)
-async def serverinfo(ctx):
+async def server(ctx):
 	s = ctx.message.server
 	si = discord.Embed(colour=0x2F4F4F)
 	text_channels = 0
@@ -135,7 +135,7 @@ async def serverinfo(ctx):
 	.add_field(name='Server ID:',value=s.id, inline=True)
 	.add_field(name='Stworzony:',value=utc, inline=True)
 	.add_field(name='Region:',value=s.region, inline=True)
-	.add_field(name='Roles:',value=how_many_roles, inline=True)
+	.add_field(name='Ról:',value=how_many_roles, inline=True)
 	.add_field(name='Kanałów głosowych:',value=voice_channels, inline=True)
 	.add_field(name='Kanałów textowych:',value=text_channels, inline=True)
 	.add_field(name='Poziom weryfikacji:',value=ver, inline=True)
