@@ -27,11 +27,8 @@ def getToken(token):
 @bot.event
 async def on_ready():
 	clear()
-	print('Logged in!')
-	print('Bot name: '+str(bot.user.name))
-	print('Bot id: '+str(bot.user.id))
-	print('Api version: '+str(discord.__version__))
-	print('Created at: '+str(bot.user.created_at))
+	print('Logged in!\nBot name: {}\nBot id: {}\nApi version: {}\nCreated at: {}'
+		.format(bot.user.name, bot.user.id, discord.__version__, bot.user.created_at))
 	await bot.change_presence(game=discord.Game(name='fuck reddit',url = 'Pornhub.com',type=1))
 	print('---------------------------------')
 
@@ -50,7 +47,7 @@ async def on_message(message):
 """when someone join server do stuff"""
 @bot.event
 async def on_member_join(member):
-	await bot.send_message(member.server, 'Witaj '+member.name+' ! 😍')
+	await bot.send_message(member.server, 'Witaj {} ! 😍'.format(member.name))
 	role = discord.utils.get(member.server.roles, name='Plebs')
 	await bot.add_roles(member, role)
 
@@ -61,7 +58,10 @@ async def on_command_error(error, ctx):
 	if isinstance(error, commands.BadArgument):
 		if ctx.command.qualified_name == 'user':
 			await bot.send_message(ctx.message.channel, '⚠ Użytkownik nie znajduje się na tym serwerze! ⚠')
+	elif isinstance(error, commands.CommandNotFound):
+		await bot.send_message(ctx.message.channel, '{} ⚠ Nie ma takiej komendy! ⚠'.format(ctx.message.author.mention))
 	return bot
+
 """
 channel info
 """
@@ -140,7 +140,7 @@ async def server(ctx):
 	.add_field(name='Kanałów głosowych:',value=voice_channels, inline=True)
 	.add_field(name='Kanałów textowych:',value=text_channels, inline=True)
 	.add_field(name='Poziom weryfikacji:',value=ver, inline=True)
-	.add_field(name='Online:',value=str(online_users)+'/'+str(s.member_count), inline=True)
+	.add_field(name='Online:',value='{}/{}'.format(online_users, s.member_count), inline=True)
 	.add_field(name='Emoji:',value=emojis, inline=True)
 	.set_thumbnail(url=s.icon_url))
 	await bot.send_message(ctx.message.channel, embed=si)
@@ -162,42 +162,42 @@ async def ud(ctx, *, words : str=None):
 
 """urban dictionary"""
 async def udi(ctx, words=None, random=False):
-	defs = []
-	if random == False:
-		if not words:
-			await bot.send_message(ctx.message.channel, ctx.message.author.mention + ' ⚠ Nie podałeś słowa ⚠')
-		else:
-			defs = udic.define(words)
-	else:
-		defs = udic.random()
-
 	si = discord.Embed(colour=0x2F4F4F)
 	(si
 	.set_footer(text=ctx.message.author, icon_url=ctx.message.author.avatar_url)
 	.set_thumbnail(url=bot.user.avatar_url))
 
-	if len(defs) > 0:
+	defs = []
+	if not random:
+		if not words:
+			await bot.send_message(ctx.message.channel, '{} ⚠ Nie podałeś słowa ⚠'.format(ctx.message.author.mention))
+		else:
+			defs = udic.define(words)
+	else:
+		defs = udic.random()
+
+	if len(defs):
 		si.add_field(name=defs[0].word, value=defs[0].definition, inline=True)
 		await bot.send_message(ctx.message.channel, embed=si)
 	else:
-		await bot.send_message(ctx.message.channel, ctx.message.author.mention + ' ⚠ Nie znaleziono słowa ⚠')
+		if words:
+			await bot.send_message(ctx.message.channel, '{} ⚠ Nie znaleziono słowa ⚠'.format(ctx.message.author.mention))
 
 """russian roulette"""
 @bot.command(pass_context=True)
 async def rrol(ctx):
 	await bot.add_reaction(ctx.message,'😱')
-	r = random.randint(1,6)
-	if r == 1:
+	if random.randint(1,6) == 1:
 		await bot.say(ctx.message.author.mention+' 💀🔫')
 		await bot.ban(ctx.message.author, delete_message_days=0)
 	else:
-		await bot.say('🍀 '+ctx.message.author.mention+' to twój szczęśliwy dzień! 🍀')
+		await bot.say('{} 🍀 to twój szczęśliwy dzień! 🍀'.format(ctx.message.author.mention))
 
 """roll number from 0 to 100"""
 @bot.command()
 async def roll(number : int = None):
-	if number == None:
+	if not number:
 		number = 100
-	await bot.say('🎲 Wylosowano:  '+str(random.randint(0,number)))
+	await bot.say('🎲 Wylosowano: {}'.format(random.randint(0,number)))
 
 bot.run(getToken('Discord'))
