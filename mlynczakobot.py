@@ -1,5 +1,6 @@
 from discord.ext import commands
 from datetime import datetime
+from imdbpie import Imdb
 
 import discord
 import random
@@ -108,7 +109,7 @@ async def user(ctx, *, m: discord.Member=None):
             roles = roles + '{}, '.format(r.name)
     roles = roles[:-2]
 
-    si = discord.Embed(colour=0x2F4F4F)
+    em = discord.Embed(colour=0x2F4F4F)
     (si
      .add_field(name='Nazwa:', value=m, inline=True)
      .add_field(name='Status:', value=str(m.status).capitalize(), inline=True)
@@ -119,7 +120,7 @@ async def user(ctx, *, m: discord.Member=None):
      .add_field(name='Utworzony :', value=datetime.strptime(str(m.created_at.replace(microsecond=0)), '%Y-%m-%d %H:%M:%S'), inline=True)
      .add_field(name='({}) Roles:'.format(roles_count), value=roles, inline=True)
      .set_thumbnail(url=avatar))
-    await bot.send_message(ctx.message.channel, embed=si)
+    await bot.send_message(ctx.message.channel, embed=em)
 
 """print server info"""
 
@@ -127,7 +128,7 @@ async def user(ctx, *, m: discord.Member=None):
 @bot.command(pass_context=True)
 async def server(ctx):
     s = ctx.message.server
-    si = discord.Embed(colour=0x2F4F4F)
+    em = discord.Embed(colour=0x2F4F4F)
     text_channels = 0
     voice_channels = 0
     how_many_roles = 0
@@ -149,7 +150,7 @@ async def server(ctx):
     if ver == discord.VerificationLevel.none:
         ver = 'Brak'
     utc = datetime.strptime(str(s.created_at.replace(microsecond=0)), '%Y-%m-%d %H:%M:%S')
-    (si
+    (em
      .set_footer(text='Informacje o serwerze', icon_url=bot.user.avatar_url)
      .add_field(name='Nazwa Servera:', value=s.name, inline=True)
      .add_field(name='Właściciel:', value=s.owner, inline=True)
@@ -163,7 +164,7 @@ async def server(ctx):
      .add_field(name='Online:', value='{}/{}'.format(online_users, s.member_count), inline=True)
      .add_field(name='Emoji:', value=emojis, inline=True)
      .set_thumbnail(url=s.icon_url))
-    await bot.send_message(ctx.message.channel, embed=si)
+    await bot.send_message(ctx.message.channel, embed=em)
 
 """clear messeges"""
 
@@ -178,6 +179,82 @@ async def clear(amount: int = 100):
 @bot.command(pass_context=True)
 async def stock(currency: str = None):
     await bot.say(ctx.message.channel, '')
+
+"""imdb"""
+
+
+@bot.command(pass_context=True)
+async def imdb(ctx, *, image: str = None):
+    idb = Imdb()
+    if not image:
+        await bot.send_message(ctx.message.channel,
+                               '{} ⚠ Nie podałeś nazwy filmu lub serialu! ⚠'
+                               .format(ctx.message.author.mention))
+    else:
+        data = idb.search_for_title(''.join(image))
+        if not data:
+            await bot.send_message(ctx.message.channel,
+                                   '{} ⚠ Not found! ⚠'.format(ctx.message.author.mention))
+        else:
+            i = idb.get_title_by_id(data[0].get('imdb_id'))
+
+            i_genres = i.genres
+            genres = ''
+            if i_genres:
+                for g in i_genres:
+                    genres = genres + g + ', '
+                genres = genres[:-2]
+            else:
+                genres = None
+
+            s = i.runtime
+            em = discord.Embed(colour=0x2F4F4F, title=i.title, description=i.plot_outline,
+                               url='http://imdb.com/title/{}/'.format(i.imdb_id))
+
+            i_type = i.type
+            if i_type == 'feature':
+                if i.directors_summary:
+                    name = 'Directors:'
+                    directors = ''
+                    directors_count = 0
+                    for d in i.directors_summary:
+                        directors = directors + d.name + ', '
+                        directors_count = directors_count + 1
+                        directors = directors[:-2]
+                    if directors_count < 2:
+                        name = name.replace('s', '')
+                    i_type = 'Movie'
+                    em.add_field(name=name, value=directors, inline=True)
+
+            elif i_type == 'tv_series':
+                i_type = 'TV series'
+                episodes = idb.get_episodes(i.imdb_id)
+                count_episodes = len(episodes)
+                if count_episodes:
+                    em.add_field(name='Episodes:', value=count_episodes, inline=True)
+            elif i_type == 'short':
+                i_type = 'Short'
+            else:
+                print('Type to involve in code: {}'.format(i_type))
+
+            s_str = ''
+            if s:
+                s_str = '{:02}h {:02}min'.format(s // 3600, s % 3600 // 60)
+            else:
+                s_str = '0s'
+            cover_url = i.cover_url
+            if cover_url:
+                em.set_thumbnail(url=i.cover_url)
+            (em
+             .add_field(name='Type:', value=i_type, inline=True)
+             .add_field(name='Genres:', value=genres, inline=True)
+             .add_field(name='Year:', value=i.year, inline=True)
+             .add_field(name='Rating:', value='{}/10'.format(i.rating), inline=True)
+             .add_field(name='Certification:', value=i.certification, inline=True)
+             .add_field(name='Runtime:', value=s_str, inline=True)
+             .set_footer(text=ctx.message.author, icon_url=ctx.message.author.avatar_url))
+
+            await bot.send_message(ctx.message.channel, embed=em)
 
 """random urban dictionary"""
 
@@ -234,7 +311,7 @@ async def rrol(ctx):
 
 
 @bot.command()
-async def roll(number: int = 100):
+async def roll(number: int=100):
     await bot.say('🎲 Wylosowano: {}'.format(random.randint(0, number)))
 
 bot.run(getToken('Discord'))
