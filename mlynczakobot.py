@@ -180,15 +180,17 @@ async def clear(amount: int = 100):
 async def stock(currency: str = None):
     await bot.say(ctx.message.channel, '')
 
+
 """imdb"""
+
+idb = Imdb()
 
 
 @bot.command(pass_context=True)
 async def imdb(ctx, *, image: str = None):
-    idb = Imdb()
     if not image:
         await bot.send_message(ctx.message.channel,
-                               '{} ⚠ Nie podałeś nazwy filmu lub serialu! ⚠'
+                               '{} ⚠ You need to specify name of movie or tv show! ⚠\n\n Example: !imdb La La Land'
                                .format(ctx.message.author.mention))
     else:
         data = idb.search_for_title(''.join(image))
@@ -208,7 +210,7 @@ async def imdb(ctx, *, image: str = None):
                 genres = None
 
             s = i.runtime
-            em = discord.Embed(colour=0x2F4F4F, title=i.title, description=i.plot_outline,
+            em = discord.Embed(colour=0xFFD219, title=i.title, description=i.plot_outline,
                                url='http://imdb.com/title/{}/'.format(i.imdb_id))
 
             i_type = i.type
@@ -256,6 +258,26 @@ async def imdb(ctx, *, image: str = None):
 
             await bot.send_message(ctx.message.channel, embed=em)
 
+""""imdb popular shows"""
+
+
+@bot.command(pass_context=True)
+async def imdbpopular(ctx):
+
+    _popular_shows = idb.popular_shows()
+    _popular_shows = _popular_shows[:-40]
+
+    em = discord.Embed(colour=0xFFD219)
+
+    top10 = ''
+    for i, e in enumerate(_popular_shows):
+        top10 = top10 + '{}. {}\n\n'.format(i + 1, e.get('title'))
+
+    em.add_field(name='Top 10 most popular shows on imdb:\n',
+                 value=top10)
+
+    await bot.send_message(ctx.message.channel, embed=em)
+
 """random urban dictionary"""
 
 
@@ -267,7 +289,7 @@ async def rud(ctx):
 
 
 @bot.command(pass_context=True)
-async def ud(ctx, *, words: str=None):
+async def ud(ctx, *, words: str = None):
     await udi(ctx, words)
 
 """urban dictionary"""
