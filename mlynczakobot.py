@@ -110,7 +110,7 @@ async def user(ctx, *, m: discord.Member=None):
     roles = roles[:-2]
 
     em = discord.Embed(colour=0x2F4F4F)
-    (si
+    (em
      .add_field(name='Nazwa:', value=m, inline=True)
      .add_field(name='Status:', value=str(m.status).capitalize(), inline=True)
      .add_field(name='Gra:', value=game, inline=True)
@@ -296,8 +296,8 @@ async def ud(ctx, *, words: str = None):
 
 
 async def udi(ctx, words=None, random=False):
-    si = discord.Embed(colour=0x2F4F4F)
-    (si
+    em = discord.Embed(colour=0x2F4F4F)
+    (em
      .set_footer(text=ctx.message.author, icon_url=ctx.message.author.avatar_url)
      .set_thumbnail(url=bot.user.avatar_url))
 
@@ -311,8 +311,8 @@ async def udi(ctx, words=None, random=False):
         defs = udic.random()
 
     if len(defs):
-        si.add_field(name=defs[0].word, value=defs[0].definition, inline=True)
-        await bot.send_message(ctx.message.channel, embed=si)
+        em.add_field(name=defs[0].word, value=defs[0].definition, inline=True)
+        await bot.send_message(ctx.message.channel, embed=em)
     else:
         if words:
             await bot.send_message(ctx.message.channel, '{} ⚠ Nie znaleziono słowa ⚠'.format(ctx.message.author.mention))
